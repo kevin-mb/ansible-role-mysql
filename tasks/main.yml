@@ -21,3 +21,23 @@
 - include: databases.yml
 - include: users.yml
 - include: replication.yml
+
+# For MB
+# Copy dump scripts
+# Has to be after the root password assignment, for idempotency.
+- name: Copy mysql-export-data.sh
+  template:
+    src: "mysql-export-data.sh"
+    dest: "/usr/local/bin/mysql-export-data"
+    owner: root
+    group: root
+    mode: 0777
+
+# Has to be after the root password assignment, for idempotency.
+- name: Copy mysql-export-users.php
+  template:
+    src: "mysql-export-users.php"
+    dest: "/usr/local/bin/mysql-export-users"
+    owner: root
+    group: root
+    mode: 0777
