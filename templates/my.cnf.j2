@@ -2,6 +2,7 @@
 #password = your_password
 port = {{ mysql_port }}
 socket = {{ mysql_socket }}
+default-character-set = {{ mysql_character_set_server }}
 
 [mysqld]
 port = {{ mysql_port }}
@@ -100,6 +101,12 @@ innodb_log_file_size = {{ mysql_innodb_log_file_size }}
 innodb_log_buffer_size = {{ mysql_innodb_log_buffer_size }}
 innodb_flush_log_at_trx_commit = {{ mysql_innodb_flush_log_at_trx_commit }}
 innodb_lock_wait_timeout = {{ mysql_innodb_lock_wait_timeout }}
+
+# MB SETTINGS
+character-set-server = {{ mysql_character_set_server }}
+init-connect = {{ mysql_init_connect }}
+collation-server = {{ mysql_collation_server }}
+auto-increment-increment = {{ mysql_auto_increment_increment }}
 
 [mysqldump]
 quick

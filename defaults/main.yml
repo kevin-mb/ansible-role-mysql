@@ -119,3 +119,9 @@ mysql_replication_role: ''
 mysql_replication_master: ''
 # Same keys as `mysql_users` above.
 mysql_replication_user: []
+
+# Added MB
+mysql_character_set_server: "utf-8"
+mysql_collation_server: "utf8_general_ci"
+mysql_init_connect: "SET NAMES 'utf8'"
+mysql_auto_increment_increment: "2"
