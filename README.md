@@ -35,6 +35,8 @@ Whether to force update the MySQL root user's password. By default, this role wi
 
 > Note: If you get an error like `ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)` after a failed or interrupted playbook run, this usually means the root password wasn't originally updated to begin with. Try either removing  the `.my.cnf` file inside the configured `mysql_user_home` or updating it and setting `password=''` (the insecure default password). Run the playbook again, with `mysql_root_password_update` set to `yes`, and the setup should complete.
 
+> Note: If you get an error like `ERROR 1698 (28000): Access denied for user 'root'@'localhost' (using password: YES)` when trying to log in from the CLI you might need to run as root or sudoer.
+
     mysql_enabled_on_startup: yes
 
 Whether MySQL should be enabled on startup.
@@ -56,9 +58,21 @@ A list of files that should override the default global my.cnf. Each item in the
 
 The MySQL databases to create. A database has the values `name`, `encoding` (defaults to `utf8`), `collation` (defaults to `utf8_general_ci`) and `replicate` (defaults to `1`, only used if replication is configured). The formats of these are the same as in the `mysql_db` module.
 
+You can also delete a database (or ensure it's not on the server) by setting `state` to `absent` (defaults to `present`).
+
     mysql_users: []
 
-The MySQL users and their privileges. A user has the values `name`, `host` (defaults to `localhost`), `password`, `priv` (defaults to `*.*:USAGE`), `append_privs` (defaults to `no`),  `state`  (defaults to `present`). The formats of these are the same as in the `mysql_user` module.
+The MySQL users and their privileges. A user has the values:
+
+  - `name`
+  - `host` (defaults to `localhost`)
+  - `password` (can be plaintext or encrypted—if encrypted, set `encrypted: yes`)
+  - `encrypted` (defaults to `no`)
+  - `priv` (defaults to `*.*:USAGE`)
+  - `append_privs` (defaults to `no`)
+  - `state`  (defaults to `present`)
+
+The formats of these are the same as in the `mysql_user` module.
 
     mysql_packages:
       - mysql
@@ -78,6 +92,7 @@ The MySQL users and their privileges. A user has the values `name`, `host` (defa
 
 Default MySQL connection configuration.
 
+    mysql_log_file_group: mysql *adm on Debian*
     mysql_log: ""
     mysql_log_error: *default value depends on OS*
     mysql_syslog_tag: *default value depends on OS*
@@ -106,6 +121,29 @@ The rest of the settings in `defaults/main.yml` control MySQL's memory usage and
     mysql_replication_user: []
 
 Replication settings. Set `mysql_server_id` and `mysql_replication_role` by server (e.g. the master would be ID `1`, with the `mysql_replication_role` of `master`, and the slave would be ID `2`, with the `mysql_replication_role` of `slave`). The `mysql_replication_user` uses the same keys as `mysql_users`, and is created on master servers, and used to replicate on all the slaves.
+
+### Later versions of MySQL on CentOS 7
+
+If you want to install MySQL from the official repository instead of installing the system default MariaDB equivalents, you can add the following `pre_tasks` task in your playbook:
+
+```yaml
+  pre_tasks:
+    - name: Install the MySQL repo.
+      yum:
+        name: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+        state: present
+      when: ansible_os_family == "RedHat"
+  
+    - name: Override variables for MySQL (RedHat).
+      set_fact:
+        mysql_daemon: mysqld
+        mysql_packages: ['mysql-server']
+        mysql_log_error: /var/log/mysqld.err
+        mysql_syslog_tag: mysqld
+        mysql_pid_file: /var/run/mysqld/mysqld.pid
+        mysql_socket: /var/lib/mysql/mysql.sock
+      when: ansible_os_family == "RedHat"
+```
 
 ### MariaDB usage
 
