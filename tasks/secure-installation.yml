@@ -78,12 +78,3 @@
 
 - name: Remove MySQL test database.
   mysql_db: "name='test' state=absent"
-
-# Added for MB
-- name: Copy local .my.cnf file (vagrant)
-  command: cp {{ mysql_user_home }}/.my.cnf /home/vagrant/.my.cnf
-  when: "'vagrant' in group_names"
-
-- name: Set rights for .my.cnf
-  file: path=/home/vagrant/.my.cnf owner=vagrant group=vagrant
-  when: "'vagrant' in group_names"
